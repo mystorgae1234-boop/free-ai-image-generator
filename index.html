@@ -3,25 +3,40 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free AI Image Studio</title>
 <style>
-body{margin:0;padding:20px;background:#130f20;color:#fff;font-family:Arial,sans-serif}
-main{max-width:650px;margin:auto}
+*{box-sizing:border-box}
+body{margin:0;padding:18px;background:#130f20;color:#fff;font:16px Arial,sans-serif}
+main{max-width:720px;margin:auto}
 h1{color:#f18ad9}
-textarea,select,button{box-sizing:border-box;width:100%;padding:13px;margin:8px 0;border-radius:10px;font-size:16px}
-textarea,select{background:#241c35;color:white;border:1px solid #655080}
-button{background:#df8ee8;color:#190e24;border:0;font-weight:bold}
-img{width:100%;margin-top:15px;border-radius:12px}
-#status{color:#d4c5e9}
+.panel{background:#20192f;padding:15px;border-radius:14px;margin:14px 0}
+label{display:block;margin:13px 0 6px}
+textarea,input,select,button{width:100%;padding:12px;border-radius:10px;font-size:16px}
+textarea,input,select{background:#2a2139;color:white;border:1px solid #655080}
+button{border:0;background:#df8ee8;color:#190e24;font-weight:bold;margin-top:10px;cursor:pointer}
+button:disabled{opacity:.5}
+.small{font-size:13px;color:#cbbbdc;line-height:1.5}
+#status{color:#f0c8f2;white-space:pre-wrap}
+#uploadPreview{max-width:100%;max-height:320px;display:block;margin-top:10px;border-radius:10px}
+.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{min-width:0;background:#2a2139;padding:8px;border-radius:12px}
+.tile img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px}
+.tile button{font-size:13px;padding:9px}
+.result{width:100%;border-radius:12px;margin-top:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
 <h1>✦ Free AI Image Studio</h1>
-<p>Anime, fantasy and digital art generator</p>
-<label for="prompt">Describe your image</label>
-<textarea id="prompt" rows="5" placeholder="Anime girl with red hair, golden eyes, dark fantasy background..."></textarea>
+<p>Anime • Fantasy • Digital Art</p>
+
+<section class="panel">
+<label for="prompt">Image description</label>
+<textarea id="prompt" rows="4" placeholder="Anime girl with red hair, golden eyes, detailed fantasy outfit..."></textarea>
+
 <label for="style">Art style</label>
 <select id="style">
 <option>Anime illustration</option>
@@ -29,49 +44,230 @@ img{width:100%;margin-top:15px;border-radius:12px}
 <option>Oil painting on canvas</option>
 <option>Chibi sticker art</option>
 <option>Watercolor illustration</option>
+<option>Realistic digital art</option>
 </select>
-<button id="generate">Generate Image ✨</button>
-<p id="status">Write a prompt to begin.</p>
-<img id="result" hidden alt="Generated artwork">
-<button id="download" hidden>Download Image</button>
-<script>
-const promptBox=document.getElementById('prompt');
-const styleBox=document.getElementById('style');
-const result=document.getElementById('result');
-const statusBox=document.getElementById('status');
-const generate=document.getElementById('generate');
-const download=document.getElementById('download');
 
-generate.onclick=()=>{
- const prompt=promptBox.value.trim();
- if(!prompt){statusBox.textContent='Please enter an image description first.';return;}
- const text=prompt+', '+styleBox.value;
- const url='https://image.pollinations.ai/prompt/'+encodeURIComponent(text)+'?width=768&height=1024&nologo=true';
- statusBox.textContent='Generating image... please wait.';
- generate.disabled=true;
- result.hidden=true;
- download.hidden=true;
- result.onload=()=>{
-  result.hidden=false;
-  statusBox.textContent='Your artwork is ready!';
-  generate.disabled=false;
-  download.hidden=false;
- };
- result.onerror=()=>{
-  statusBox.textContent='Service unavailable. Please try again later.';
-  generate.disabled=false;
- };
- result.src=url;
+<label for="framing">Character framing</label>
+<select id="framing">
+<option value="">Let the prompt decide</option>
+<option value="full body, head to toe, entire character visible, feet visible">Full body</option>
+<option value="waist-up portrait">Waist up</option>
+<option value="close-up portrait">Close-up</option>
+</select>
+
+<div class="row">
+<div>
+<label for="size">Image size</label>
+<select id="size">
+<option value="512,768">Portrait — 512 × 768</option>
+<option value="768,1024" selected>Large portrait — 768 × 1024</option>
+<option value="1024,1024">Square — 1024 × 1024</option>
+<option value="1024,768">Landscape — 1024 × 768</option>
+</select>
+</div>
+<div>
+<label for="count">Images per request</label>
+<select id="count">
+<option value="1">1 image</option>
+<option value="2">2 images</option>
+<option value="3">3 images</option>
+<option value="4">4 images</option>
+</select>
+</div>
+</div>
+
+<label for="negative">Negative prompt — unwanted details</label>
+<textarea id="negative" rows="2" placeholder="blurry, extra fingers, cropped feet, text, watermark..."></textarea>
+
+<button id="generate">Generate Image ✨</button>
+<p id="status">Enter a prompt to begin.</p>
+<div id="results"></div>
+</section>
+
+<section class="panel">
+<h2>Upload character image</h2>
+<p class="small">Upload an image to preview it and save it to your gallery. Actual AI editing that preserves your uploaded character requires an image-editing service that accepts image input.</p>
+<input id="upload" type="file" accept="image/*">
+<img id="uploadPreview" hidden alt="Uploaded character preview">
+<button id="saveUpload" hidden>Save upload to gallery</button>
+</section>
+
+<section class="panel">
+<h2>My Gallery</h2>
+<p class="small">Images are saved in this browser on this device. Clearing browser data may erase the gallery.</p>
+<div class="row">
+<button id="refresh">Refresh gallery</button>
+<button id="clear">Clear gallery</button>
+</div>
+<div id="gallery" class="gallery"></div>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+const historyKey='freeAiStudioGalleryV2';
+let uploadedData='';
+
+function readHistory(){
+  try{return JSON.parse(localStorage.getItem(historyKey)||'[]')}
+  catch(e){return []}
+}
+function saveHistory(items){
+  try{
+    localStorage.setItem(historyKey,JSON.stringify(items.slice(0,30)));
+    return true;
+  }catch(e){
+    $('status').textContent='Gallery storage is full. Remove some old images and try again.';
+    return false;
+  }
+}
+function addHistory(item){
+  const items=readHistory();
+  items.unshift(item);
+  saveHistory(items);
+  renderGallery();
+}
+function renderGallery(){
+  const gallery=$('gallery');
+  gallery.innerHTML='';
+  const items=readHistory();
+  if(!items.length){
+    gallery.innerHTML='<p class="small">Your saved images will appear here.</p>';
+    return;
+  }
+  items.forEach((item,index)=>{
+    const tile=document.createElement('div');
+    tile.className='tile';
+    const img=document.createElement('img');
+    img.src=item.url;
+    img.alt=item.prompt||'Saved image';
+    img.loading='lazy';
+    const title=document.createElement('p');
+    title.className='small';
+    title.textContent=item.prompt||'Uploaded image';
+    const open=document.createElement('button');
+    open.textContent='Open image';
+    open.onclick=()=>window.open(item.url,'_blank');
+    const remove=document.createElement('button');
+    remove.textContent='Remove';
+    remove.onclick=()=>{
+      const next=readHistory();
+      next.splice(index,1);
+      saveHistory(next);
+      renderGallery();
+    };
+    tile.append(img,title,open,remove);
+    gallery.appendChild(tile);
+  });
+}
+
+$('generate').onclick=async()=>{
+  const prompt=$('prompt').value.trim();
+  if(!prompt){$('status').textContent='Please enter an image description.';return;}
+
+  const [width,height]=$('size').value.split(',');
+  const count=Number($('count').value);
+  const framing=$('framing').value;
+  const negative=$('negative').value.trim();
+  const style=$('style').value;
+  const finalPrompt=[
+    prompt,
+    style,
+    framing,
+    negative?'Avoid these unwanted details: '+negative:''
+  ].filter(Boolean).join(', ');
+
+  $('generate').disabled=true;
+  $('results').innerHTML='';
+  $('status').textContent='Generating '+count+' image(s)... Please wait.';
+
+  let completed=0;
+  for(let i=0;i<count;i++){
+    const seed=Math.floor(Math.random()*2147483647);
+    const url='https://image.pollinations.ai/prompt/'+
+      encodeURIComponent(finalPrompt)+
+      '?width='+width+'&height='+height+
+      '&seed='+seed+'&nologo=true';
+
+    const img=document.createElement('img');
+    img.className='result';
+    img.alt='Generated artwork '+(i+1);
+    img.hidden=true;
+    $('results').appendChild(img);
+
+    await new Promise(resolve=>{
+      let finished=false;
+      const done=()=>{
+        if(finished)return;
+        finished=true;
+        resolve();
+      };
+      const timeout=setTimeout(done,90000);
+      img.onload=()=>{
+        clearTimeout(timeout);
+        img.hidden=false;
+        completed++;
+        addHistory({url,prompt:finalPrompt,date:Date.now()});
+        $('status').textContent='Completed '+completed+' of '+count+' image(s).';
+        const download=document.createElement('button');
+        download.textContent='Open / Download image '+(i+1);
+        download.onclick=()=>window.open(url,'_blank');
+        img.after(download);
+        done();
+      };
+      img.onerror=()=>{
+        clearTimeout(timeout);
+        img.remove();
+        $('status').textContent='An image failed to load. Service may be busy; try again later.';
+        done();
+      };
+      img.src=url;
+    });
+  }
+  $('generate').disabled=false;
+  if(completed>0){
+    $('status').textContent='Finished! Generated '+completed+' of '+count+' image(s).';
+  }else{
+    $('status').textContent='No images loaded. The free image service may be unavailable. Please try again later.';
+  }
 };
-download.onclick=()=>{
- const a=document.createElement('a');
- a.href=result.src;
- a.target='_blank';
- a.rel='noopener';
- a.download='my-ai-art.png';
- a.click();
+
+$('upload').onchange=()=>{
+  const file=$('upload').files[0];
+  if(!file)return;
+  if(!file.type.startsWith('image/')){
+    $('status').textContent='Please choose an image file.';
+    return;
+  }
+  if(file.size>3*1024*1024){
+    $('status').textContent='Please choose an image under 3 MB to keep browser storage manageable.';
+    $('upload').value='';
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=()=>{
+    uploadedData=reader.result;
+    $('uploadPreview').src=uploadedData;
+    $('uploadPreview').hidden=false;
+    $('saveUpload').hidden=false;
+  };
+  reader.readAsDataURL(file);
 };
+$('saveUpload').onclick=()=>{
+  if(!uploadedData)return;
+  addHistory({url:uploadedData,prompt:'Uploaded character image',date:Date.now()});
+  $('status').textContent='Uploaded image saved to your gallery.';
+};
+$('refresh').onclick=renderGallery;
+$('clear').onclick=()=>{
+  if(confirm('Delete all gallery entries saved in this browser?')){
+    localStorage.removeItem(historyKey);
+    renderGallery();
+  }
+};
+renderGallery();
 </script>
 </main>
 </body>
 </html>
+
+
