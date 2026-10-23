@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free AI Image Studio</title>
+<style>
+body{margin:0;padding:20px;background:#130f20;color:#fff;font-family:Arial,sans-serif}
+main{max-width:650px;margin:auto}
+h1{color:#f18ad9}
+textarea,select,button{box-sizing:border-box;width:100%;padding:13px;margin:8px 0;border-radius:10px;font-size:16px}
+textarea,select{background:#241c35;color:white;border:1px solid #655080}
+button{background:#df8ee8;color:#190e24;border:0;font-weight:bold}
+img{width:100%;margin-top:15px;border-radius:12px}
+#status{color:#d4c5e9}
+</style>
+</head>
+<body>
+<main>
+<h1>✦ Free AI Image Studio</h1>
+<p>Anime, fantasy and digital art generator</p>
+<label for="prompt">Describe your image</label>
+<textarea id="prompt" rows="5" placeholder="Anime girl with red hair, golden eyes, dark fantasy background..."></textarea>
+<label for="style">Art style</label>
+<select id="style">
+<option>Anime illustration</option>
+<option>Dark fantasy digital painting</option>
+<option>Oil painting on canvas</option>
+<option>Chibi sticker art</option>
+<option>Watercolor illustration</option>
+</select>
+<button id="generate">Generate Image ✨</button>
+<p id="status">Write a prompt to begin.</p>
+<img id="result" hidden alt="Generated artwork">
+<button id="download" hidden>Download Image</button>
+<script>
+const promptBox=document.getElementById('prompt');
+const styleBox=document.getElementById('style');
+const result=document.getElementById('result');
+const statusBox=document.getElementById('status');
+const generate=document.getElementById('generate');
+const download=document.getElementById('download');
+
+generate.onclick=()=>{
+ const prompt=promptBox.value.trim();
+ if(!prompt){statusBox.textContent='Please enter an image description first.';return;}
+ const text=prompt+', '+styleBox.value;
+ const url='https://image.pollinations.ai/prompt/'+encodeURIComponent(text)+'?width=768&height=1024&nologo=true';
+ statusBox.textContent='Generating image... please wait.';
+ generate.disabled=true;
+ result.hidden=true;
+ download.hidden=true;
+ result.onload=()=>{
+  result.hidden=false;
+  statusBox.textContent='Your artwork is ready!';
+  generate.disabled=false;
+  download.hidden=false;
+ };
+ result.onerror=()=>{
+  statusBox.textContent='Service unavailable. Please try again later.';
+  generate.disabled=false;
+ };
+ result.src=url;
+};
+download.onclick=()=>{
+ const a=document.createElement('a');
+ a.href=result.src;
+ a.target='_blank';
+ a.rel='noopener';
+ a.download='my-ai-art.png';
+ a.click();
+};
+</script>
+</main>
+</body>
+</html>
