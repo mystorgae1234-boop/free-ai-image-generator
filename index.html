@@ -7,66 +7,75 @@
 <title>Free AI Image Studio</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:18px;background:#130f20;color:#fff;font:16px Arial,sans-serif}
-main{max-width:720px;margin:auto}
-h1{color:#f18ad9}
-.panel{background:#20192f;padding:15px;border-radius:14px;margin:14px 0}
-label{display:block;margin:13px 0 6px}
-textarea,input,select,button{width:100%;padding:12px;border-radius:10px;font-size:16px}
-textarea,input,select{background:#2a2139;color:white;border:1px solid #655080}
-button{border:0;background:#df8ee8;color:#190e24;font-weight:bold;margin-top:10px;cursor:pointer}
-button:disabled{opacity:.5}
-.small{font-size:13px;color:#cbbbdc;line-height:1.5}
-#status{color:#f0c8f2;white-space:pre-wrap}
-#uploadPreview{max-width:100%;max-height:320px;display:block;margin-top:10px;border-radius:10px}
-.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.tile{min-width:0;background:#2a2139;padding:8px;border-radius:12px}
-.tile img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px}
-.tile button{font-size:13px;padding:9px}
-.result{width:100%;border-radius:12px;margin-top:12px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:420px){.row{grid-template-columns:1fr}}
+body{margin:0;padding:18px;background:#130f20;color:#fff;font-family:system-ui,Arial,sans-serif}
+main{max-width:900px;margin:auto}
+h1{margin:4px 0;color:#e7b9ff}
+p{color:#c9c0d8}
+.panel{background:#211a32;border:1px solid #403451;border-radius:16px;padding:16px;margin:14px 0}
+label{display:block;margin:12px 0 6px;font-weight:600}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;padding:12px;border-radius:9px;border:1px solid #554768;background:#120e1c;color:white}
+textarea{min-height:90px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{border:0;border-radius:10px;padding:12px;background:#b968ee;color:#160d20;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.secondary{background:#403451;color:white}
+#status{white-space:pre-wrap;overflow-wrap:anywhere}
+#results,.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.result-card{background:#171222;padding:8px;border-radius:12px;overflow:hidden}
+.result-card img{width:100%;height:auto;display:block;border-radius:8px}
+.result-card a{display:block;color:#e7b9ff;margin-top:8px;overflow-wrap:anywhere}
+.small{font-size:13px;color:#bdb0cd}
+.preview{max-width:100%;max-height:220px;display:block;margin-top:10px;border-radius:10px}
+@media(max-width:520px){.row{grid-template-columns:1fr}body{padding:12px}}
 </style>
 </head>
 <body>
 <main>
-<h1>✦ Free AI Image Studio</h1>
-<p>Anime • Fantasy • Digital Art</p>
+<h1>✨ Free AI Image Studio</h1>
+<p>Anime art generator · Free community-powered image generation</p>
 
 <section class="panel">
-<label for="prompt">Image description</label>
-<textarea id="prompt" rows="4" placeholder="Anime girl with red hair, golden eyes, detailed fantasy outfit..."></textarea>
+<label for="prompt">Describe your image</label>
+<textarea id="prompt" placeholder="Example: full-body anime cat girl, detailed fantasy costume, moonlit garden"></textarea>
 
+<div class="row">
+<div>
 <label for="style">Art style</label>
 <select id="style">
-<option>Anime illustration</option>
-<option>Dark fantasy digital painting</option>
-<option>Oil painting on canvas</option>
-<option>Chibi sticker art</option>
-<option>Watercolor illustration</option>
-<option>Realistic digital art</option>
+<option>Anime</option>
+<option>Dark fantasy anime</option>
+<option>Chibi</option>
+<option>Manga</option>
+<option>Oil painting</option>
+<option>Realistic</option>
+<option>Watercolor</option>
+<option>3D cartoon</option>
 </select>
-
-<label for="framing">Character framing</label>
+</div>
+<div>
+<label for="framing">Composition</label>
 <select id="framing">
-<option value="">Let the prompt decide</option>
-<option value="full body, head to toe, entire character visible, feet visible">Full body</option>
-<option value="waist-up portrait">Waist up</option>
-<option value="close-up portrait">Close-up</option>
+<option>Full-body portrait</option>
+<option>Waist-up portrait</option>
+<option>Close-up portrait</option>
+<option>Wide landscape</option>
+<option>Character action scene</option>
 </select>
+</div>
+</div>
 
 <div class="row">
 <div>
 <label for="size">Image size</label>
 <select id="size">
-<option value="512,768">Portrait — 512 × 768</option>
-<option value="768,1024" selected>Large portrait — 768 × 1024</option>
-<option value="1024,1024">Square — 1024 × 1024</option>
-<option value="1024,768">Landscape — 1024 × 768</option>
+<option value="512">512 × 512</option>
+<option value="640">640 × 640</option>
+<option value="768">768 × 768</option>
 </select>
 </div>
 <div>
-<label for="count">Images per request</label>
+<label for="count">Number of images</label>
 <select id="count">
 <option value="1">1 image</option>
 <option value="2">2 images</option>
@@ -76,198 +85,302 @@ button:disabled{opacity:.5}
 </div>
 </div>
 
-<label for="negative">Negative prompt — unwanted details</label>
-<textarea id="negative" rows="2" placeholder="blurry, extra fingers, cropped feet, text, watermark..."></textarea>
+<label for="negative">Negative prompt (unwanted details)</label>
+<textarea id="negative" placeholder="blurry, low quality, extra fingers, bad anatomy"></textarea>
 
-<button id="generate">Generate Image ✨</button>
-<p id="status">Enter a prompt to begin.</p>
+<label for="upload">Reference image (preview only)</label>
+<input id="upload" type="file" accept="image/*">
+<img id="preview" class="preview" hidden alt="Uploaded reference preview">
+<p class="small">Reference upload is not sent to the AI model in this version.</p>
+
+<button id="generate" style="width:100%;margin-top:16px">Generate images</button>
+<p id="status" role="status">Ready. Enter a prompt to begin.</p>
+</section>
+
+<section class="panel">
+<h2>Generated images</h2>
 <div id="results"></div>
 </section>
 
 <section class="panel">
-<h2>Upload character image</h2>
-<p class="small">Upload an image to preview it and save it to your gallery. Actual AI editing that preserves your uploaded character requires an image-editing service that accepts image input.</p>
-<input id="upload" type="file" accept="image/*">
-<img id="uploadPreview" hidden alt="Uploaded character preview">
-<button id="saveUpload" hidden>Save upload to gallery</button>
-</section>
-
-<section class="panel">
-<h2>My Gallery</h2>
-<p class="small">Images are saved in this browser on this device. Clearing browser data may erase the gallery.</p>
 <div class="row">
-<button id="refresh">Refresh gallery</button>
-<button id="clear">Clear gallery</button>
+<h2>Recent gallery</h2>
+<button class="secondary" id="clear">Clear gallery</button>
 </div>
 <div id="gallery" class="gallery"></div>
+<p class="small">Gallery history is saved in this browser on this device.</p>
 </section>
+</main>
 
 <script>
-const $=id=>document.getElementById(id);
-const historyKey='freeAiStudioGalleryV2';
-let uploadedData='';
+const $ = id => document.getElementById(id);
+const API = 'https://aihorde.net/api/v2';
+const ANON_KEY = '0000000000';
+const CLIENT_AGENT = 'FreeAIImageStudio:1.0:github-pages';
 
-function readHistory(){
-  try{return JSON.parse(localStorage.getItem(historyKey)||'[]')}
-  catch(e){return []}
+let busy = false;
+let historyItems = [];
+
+try {
+  historyItems = JSON.parse(localStorage.getItem('freeStudioHistory') || '[]');
+  if (!Array.isArray(historyItems)) historyItems = [];
+} catch {
+  historyItems = [];
 }
-function saveHistory(items){
-  try{
-    localStorage.setItem(historyKey,JSON.stringify(items.slice(0,30)));
-    return true;
-  }catch(e){
-    $('status').textContent='Gallery storage is full. Remove some old images and try again.';
-    return false;
+
+function saveHistory() {
+  try {
+    localStorage.setItem('freeStudioHistory', JSON.stringify(historyItems));
+  } catch {
+    $('status').textContent +=
+      '\nBrowser storage is full; some gallery history may not be saved.';
   }
 }
-function addHistory(item){
-  const items=readHistory();
-  items.unshift(item);
-  saveHistory(items);
+
+function addHistory(item) {
+  historyItems.unshift(item);
+  historyItems = historyItems.slice(0, 20);
+  saveHistory();
   renderGallery();
 }
-function renderGallery(){
-  const gallery=$('gallery');
-  gallery.innerHTML='';
-  const items=readHistory();
-  if(!items.length){
-    gallery.innerHTML='<p class="small">Your saved images will appear here.</p>';
-    return;
-  }
-  items.forEach((item,index)=>{
-    const tile=document.createElement('div');
-    tile.className='tile';
-    const img=document.createElement('img');
-    img.src=item.url;
-    img.alt=item.prompt||'Saved image';
-    img.loading='lazy';
-    const title=document.createElement('p');
-    title.className='small';
-    title.textContent=item.prompt||'Uploaded image';
-    const open=document.createElement('button');
-    open.textContent='Open image';
-    open.onclick=()=>window.open(item.url,'_blank');
-    const remove=document.createElement('button');
-    remove.textContent='Remove';
-    remove.onclick=()=>{
-      const next=readHistory();
-      next.splice(index,1);
-      saveHistory(next);
-      renderGallery();
-    };
-    tile.append(img,title,open,remove);
-    gallery.appendChild(tile);
+
+function renderGallery() {
+  const gallery = $('gallery');
+  gallery.replaceChildren();
+
+  historyItems.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+
+    const img = document.createElement('img');
+    img.src = item.url;
+    img.alt = item.prompt || 'Generated artwork';
+    img.loading = 'lazy';
+
+    const link = document.createElement('a');
+    link.href = item.url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = 'Open image';
+
+    const caption = document.createElement('p');
+    caption.className = 'small';
+    caption.textContent = item.prompt || '';
+
+    card.append(img, link, caption);
+    gallery.appendChild(card);
   });
 }
 
-$('generate').onclick=async()=>{
-  const prompt=$('prompt').value.trim();
-  if(!prompt){$('status').textContent='Please enter an image description.';return;}
+$('upload').addEventListener('change', () => {
+  const file = $('upload').files[0];
+  const preview = $('preview');
 
-  const [width,height]=$('size').value.split(',');
-  const count=Number($('count').value);
-  const framing=$('framing').value;
-  const negative=$('negative').value.trim();
-  const style=$('style').value;
-  const finalPrompt=[
-    prompt,
-    style,
-    framing,
-    negative?'Avoid these unwanted details: '+negative:''
-  ].filter(Boolean).join(', ');
-
-  $('generate').disabled=true;
-  $('results').innerHTML='';
-  $('status').textContent='Generating '+count+' image(s)... Please wait.';
-
-  let completed=0;
-  for(let i=0;i<count;i++){
-    const seed=Math.floor(Math.random()*2147483647);
-    const url='https://image.pollinations.ai/prompt/'+
-      encodeURIComponent(finalPrompt)+
-      '?width='+width+'&height='+height+
-      '&seed='+seed+'&nologo=true';
-
-    const img=document.createElement('img');
-    img.className='result';
-    img.alt='Generated artwork '+(i+1);
-    img.hidden=true;
-    $('results').appendChild(img);
-
-    await new Promise(resolve=>{
-      let finished=false;
-      const done=()=>{
-        if(finished)return;
-        finished=true;
-        resolve();
-      };
-      const timeout=setTimeout(done,90000);
-      img.onload=()=>{
-        clearTimeout(timeout);
-        img.hidden=false;
-        completed++;
-        addHistory({url,prompt:finalPrompt,date:Date.now()});
-        $('status').textContent='Completed '+completed+' of '+count+' image(s).';
-        const download=document.createElement('button');
-        download.textContent='Open / Download image '+(i+1);
-        download.onclick=()=>window.open(url,'_blank');
-        img.after(download);
-        done();
-      };
-      img.onerror=()=>{
-        clearTimeout(timeout);
-        img.remove();
-        $('status').textContent='An image failed to load. Service may be busy; try again later.';
-        done();
-      };
-      img.src=url;
-    });
-  }
-  $('generate').disabled=false;
-  if(completed>0){
-    $('status').textContent='Finished! Generated '+completed+' of '+count+' image(s).';
-  }else{
-    $('status').textContent='No images loaded. The free image service may be unavailable. Please try again later.';
-  }
-};
-
-$('upload').onchange=()=>{
-  const file=$('upload').files[0];
-  if(!file)return;
-  if(!file.type.startsWith('image/')){
-    $('status').textContent='Please choose an image file.';
+  if (!file) {
+    preview.hidden = true;
+    preview.removeAttribute('src');
     return;
   }
-  if(file.size>3*1024*1024){
-    $('status').textContent='Please choose an image under 3 MB to keep browser storage manageable.';
-    $('upload').value='';
+
+  if (!file.type.startsWith('image/')) {
+    $('status').textContent = 'Please choose an image file.';
+    $('upload').value = '';
     return;
   }
-  const reader=new FileReader();
-  reader.onload=()=>{
-    uploadedData=reader.result;
-    $('uploadPreview').src=uploadedData;
-    $('uploadPreview').hidden=false;
-    $('saveUpload').hidden=false;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    preview.src = reader.result;
+    preview.hidden = false;
   };
   reader.readAsDataURL(file);
-};
-$('saveUpload').onclick=()=>{
-  if(!uploadedData)return;
-  addHistory({url:uploadedData,prompt:'Uploaded character image',date:Date.now()});
-  $('status').textContent='Uploaded image saved to your gallery.';
-};
-$('refresh').onclick=renderGallery;
-$('clear').onclick=()=>{
-  if(confirm('Delete all gallery entries saved in this browser?')){
-    localStorage.removeItem(historyKey);
-    renderGallery();
+});
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(API + path, {
+    ...options,
+    headers: {
+      apikey: ANON_KEY,
+      'Client-Agent': CLIENT_AGENT,
+      ...(options.headers || {})
+    }
+  });
+
+  const text = await response.text();
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error('The service returned an unreadable response.');
   }
-};
+
+  if (!response.ok) {
+    const detail = data.message || data.error || ('HTTP ' + response.status);
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
+async function generateOne(prompt, negative, size, index, total) {
+  const fullPrompt =
+    prompt + ' ### ' + (negative || 'blurry, low quality');
+
+  const request = await apiRequest('/generate/async', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      prompt: fullPrompt,
+      params: {
+        width: size,
+        height: size,
+        steps: 20,
+        n: 1,
+        cfg_scale: 7
+      },
+      nsfw: false,
+      censor_nsfw: true,
+      r2: true,
+      models: ['stable_diffusion']
+    })
+  });
+
+  if (!request.id) {
+    throw new Error('The service did not return a generation ID.');
+  }
+
+  const requestId = request.id;
+  const deadline = Date.now() + 5 * 60 * 1000;
+
+  while (Date.now() < deadline) {
+    await wait(4000);
+
+    $('status').textContent =
+      'Image ' + index + ' of ' + total +
+      ': waiting for a volunteer worker…';
+
+    const check = await apiRequest('/generate/check/' + requestId);
+
+    if (check.faulted) {
+      throw new Error('The generation failed on the service.');
+    }
+
+    if (check.done || check.finished > 0) {
+      const result = await apiRequest('/generate/status/' + requestId);
+      const generation = result.generations && result.generations[0];
+
+      if (!generation || !generation.img) {
+        throw new Error('The job finished but no image was returned.');
+      }
+
+      let imageUrl = generation.img;
+
+      if (!/^https?:\/\//i.test(imageUrl) &&
+          !/^data:image\//i.test(imageUrl)) {
+        imageUrl = 'data:image/webp;base64,' + imageUrl;
+      }
+
+      return imageUrl;
+    }
+  }
+
+  throw new Error('Timed out after 5 minutes. The free queue may be busy.');
+}
+
+function showResult(url, prompt, index) {
+  const card = document.createElement('div');
+  card.className = 'result-card';
+
+  const img = document.createElement('img');
+  img.className = 'result';
+  img.alt = 'Generated artwork ' + index;
+  img.src = url;
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  link.textContent = 'Open / Download image ' + index;
+
+  const download = document.createElement('a');
+  download.href = url;
+  download.download = 'ai-art-' + index + '.webp';
+  download.textContent = 'Download image';
+
+  const caption = document.createElement('p');
+  caption.className = 'small';
+  caption.textContent = prompt;
+
+  card.append(img, link, download, caption);
+  $('results').appendChild(card);
+
+  addHistory({url, prompt, date: Date.now()});
+}
+
+$('generate').addEventListener('click', async () => {
+  if (busy) return;
+
+  const userPrompt = $('prompt').value.trim();
+  if (!userPrompt) {
+    $('status').textContent = 'Please enter an image prompt first.';
+    return;
+  }
+
+  busy = true;
+  $('generate').disabled = true;
+  $('results').replaceChildren();
+
+  const style = $('style').value;
+  const framing = $('framing').value;
+  const prompt = userPrompt + ', ' + style + ', ' + framing +
+    ', detailed composition, high quality';
+  const negative = $('negative').value.trim();
+  const size = Number($('size').value);
+  const count = Number($('count').value);
+
+  let completed = 0;
+  const errors = [];
+
+  try {
+    for (let i = 1; i <= count; i++) {
+      try {
+        $('status').textContent =
+          'Submitting image ' + i + ' of ' + count + '…';
+
+        const url = await generateOne(
+          prompt, negative, size, i, count
+        );
+
+        showResult(url, prompt, i);
+        completed++;
+      } catch (error) {
+        errors.push('Image ' + i + ': ' + error.message);
+      }
+    }
+
+    $('status').textContent =
+      'Finished! Generated ' + completed + ' of ' + count + ' image(s).' +
+      (errors.length ? '\n\n' + errors.join('\n') : '');
+  } catch (error) {
+    $('status').textContent = 'Error: ' + error.message;
+  } finally {
+    busy = false;
+    $('generate').disabled = false;
+  }
+});
+
+$('clear').addEventListener('click', () => {
+  historyItems = [];
+  saveHistory();
+  renderGallery();
+});
+
 renderGallery();
 </script>
-</main>
 </body>
 </html>
-
-
