@@ -243,8 +243,8 @@ async function generateOne(prompt, negative, size, index, total) {
         n: 1,
         cfg_scale: 7
       },
-      nsfw: false,
-      censor_nsfw: true,
+      nsfw: true,
+      censor_nsfw: false,
       r2: true,
       models: ['stable_diffusion']
     })
